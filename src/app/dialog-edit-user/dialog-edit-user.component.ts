@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -13,14 +13,12 @@ import {
   MatDialogRef,
 } from '@angular/material/dialog';
 import { User } from '../../models/user.class';
-import { Firestore, collection, addDoc } from '@angular/fire/firestore';
-import { inject } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
+import { Firestore, doc, updateDoc } from '@angular/fire/firestore';
 
 @Component({
-  selector: 'app-dialog-add-user',
+  selector: 'app-dialog-edit-user',
   standalone: true,
   imports: [
     FormsModule,
@@ -35,44 +33,44 @@ import { MatCardModule } from '@angular/material/card';
     MatDatepickerModule,
     MatProgressBarModule,
     CommonModule,
-    MatCardModule,
   ],
-  templateUrl: './dialog-add-user.component.html',
-  styleUrl: './dialog-add-user.component.scss',
+  templateUrl: './dialog-edit-user.component.html',
+  styleUrl: './dialog-edit-user.component.scss',
 })
-export class DialogAddUserComponent implements OnInit {
+export class DialogEditUserComponent implements OnInit {
   user = new User();
+  userId: string = '';
   birthDate!: Date;
-  firestore: Firestore = inject(Firestore);
   loading = false;
+  firestore: Firestore = inject(Firestore);
 
-  constructor(public dialog: MatDialogRef<DialogAddUserComponent>) {}
+  constructor(public dialog: MatDialogRef<DialogEditUserComponent>) {}
 
   ngOnInit(): void {}
 
   async saveUser() {
-    if (!this.birthDate) {
-      console.error('Birth date is required');
+    if (!this.userId) {
+      console.error('User ID is required');
       return;
     }
 
     this.loading = true;
-    this.user.birthDate = this.birthDate.getTime();
-    console.log('Current user is', this.user);
+    if (this.birthDate) {
+      this.user.birthDate = this.birthDate.getTime();
+    }
 
     try {
-      const usersCollection = collection(this.firestore, 'users');
-      const userData = this.user.toJSON();
-      console.log('Saving user data:', userData);
-      const result = await addDoc(usersCollection, userData);
-      this.loading = false;
-      console.log('Adding user finished', result);
+      const userDoc = doc(this.firestore, 'users', this.userId);
+      await updateDoc(userDoc, this.user.toJSON());
+      console.log('User updated successfully');
       this.dialog.close();
     } catch (error) {
-      console.error('Error adding user:', error);
-      alert('Error saving user. Please check your connection and try again.');
+      console.error('Error updating user:', error);
+      alert('Error updating user. Please try again.');
     } finally {
       this.loading = false;
     }
+    console.log('Saving user:', this.user);
+    this.dialog.close();
   }
 }

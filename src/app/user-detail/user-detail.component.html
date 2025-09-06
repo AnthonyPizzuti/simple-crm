@@ -1,0 +1,48 @@
+<div *ngIf="user; else loading">
+  <mat-card class="user-detail-header">
+    <button
+      matIconButton
+      class="pin-right-upper-corner-user"
+      [matMenuTriggerFor]="userMenu"
+    >
+      <mat-icon>more_vert</mat-icon>
+    </button>
+
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item (click)="editUserDetail()">Edit</button>
+    </mat-menu>
+    <img class="" src="assets/img/profile.png" alt="Profile" />
+    <div class="user-details">
+      <h2>{{ user.firstName }} {{ user.lastName }}</h2>
+      <br />
+      {{ user.email }}
+    </div>
+  </mat-card>
+
+  <mat-card class="mt-32">
+    <button
+      matIconButton
+      class="pin-right-upper-corner"
+      [matMenuTriggerFor]="addressMenu"
+    >
+      <mat-icon>more_vert</mat-icon>
+    </button>
+
+    <mat-menu #addressMenu="matMenu">
+      <button mat-menu-item (click)="editMenu()">Edit</button>
+    </mat-menu>
+    <mat-card-header>
+      <mat-card-title>Address</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      {{ user.street }} <br />
+      {{ user.zipCode }} {{ user.city }}
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<ng-template #loading>
+  <mat-card>
+    <mat-card-content> Loading user data... </mat-card-content>
+  </mat-card>
+</ng-template>
